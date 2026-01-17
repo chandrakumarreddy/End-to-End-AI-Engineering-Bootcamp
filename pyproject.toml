@@ -1,0 +1,19 @@
+[project]
+name = "ai-engieering-bookcamp-prequisities"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=7.1.0",
+    "openai>=2.15.0",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "python-dotenv>=1.2.1",
+    "streamlit>=1.53.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "apps/api",
+]
