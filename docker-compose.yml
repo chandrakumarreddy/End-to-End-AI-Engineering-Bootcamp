@@ -11,6 +11,18 @@ services:
   #   volumes:
   #     - ./src:/app/src
 
+  chatbot_ui:
+    build:
+      context: .
+      dockerfile: apps/chatbot_ui/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./apps/chatbot_ui/src:/app/apps/chatbot_ui/src
+
   api:
     build:
       context: .

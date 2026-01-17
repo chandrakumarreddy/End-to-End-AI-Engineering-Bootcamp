@@ -7,26 +7,28 @@ ENV UV_COMPILE_BYTECODE=1
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-COPY apps/api ./apps/api
+COPY apps/chatbot_ui ./apps/chatbot_ui
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --package api
+    uv sync --frozen --no-dev --package chatbot_ui
 
 ENV PYTHONOPTIMIZE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH="/app/apps/api/src:$PYTHONPATH"
+ENV PYTHONPATH="/app/apps/chatbot_ui/src:$PYTHONPATH"
 
 RUN addgroup --system app && \
-    adduser --system --ingroup app app && \
+    adduser --system --ingroup app --home /home/app app && \
     chown -R app:app /app
 
 USER app
 
-EXPOSE 8000
+ENV HOME=/home/app
 
-WORKDIR /app/apps/api/src
+EXPOSE 3000
 
-CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+WORKDIR /app/apps/chatbot_ui/src
+
+CMD ["uv", "run", "streamlit", "run", "chatbot_ui/app.py", "--server.port", "3000", "--server.address", "0.0.0.0"]
