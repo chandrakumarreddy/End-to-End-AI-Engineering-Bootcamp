@@ -6,7 +6,7 @@ stop-docker-compose:
 	docker compose down
 
 clear-notebooks:
-	find notebooks -name "*.ipynb" -exec jupyter nbconvert \
+	find notebooks -name "*.ipynb" -exec uv run jupyter nbconvert \
 		--ClearOutputPreprocessor.enabled=True \
 		--to notebook \
 		--inplace {} \;
