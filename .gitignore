@@ -11,3 +11,6 @@ wheels/
 .env
 data
 .DS_Store
+
+# ignore qdrant
+qdrant_storage
