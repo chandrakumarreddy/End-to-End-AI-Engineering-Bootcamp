@@ -19,7 +19,12 @@ def api_call(url, method, **kwargs):
             error_msg = json_response.get('message', 'Unknown error')
             show_error(error_msg)
             return False, error_msg
-        return True, json_response.get('message', '')
+
+        if response.ok:
+            return True, response
+
+        return False, response
+
     except requests.exceptions.RequestException as e:
         show_error(f"API call failed: {e}")
         return False, str(e)
@@ -80,20 +85,21 @@ def main() -> None:
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                success, message = api_call(
-                    f'{config.BACKEND_API}/chat',
+                success, output = api_call(
+                    f'{config.BACKEND_API}/rag/',
                     "post",
                     json={
-                        "provider": st.session_state.provider,
-                        "model": st.session_state.model,
-                        "messages": st.session_state.messages
+                        "query": prompt
                     }
                 )
-                if success and isinstance(message, str):
-                    st.markdown(message)
-                    st.session_state.messages.append(
-                        {'role': 'assistant', 'content': message}
-                    )
+                if success:
+                    json_response = output.json()  # type: ignore
+                    answer = json_response.get('answer')
+                    if answer:
+                        st.markdown(answer)
+                        st.session_state.messages.append(
+                            {'role': 'assistant', 'content': answer}
+                        )
 
 
 if __name__ == "__main__":

@@ -3,10 +3,13 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from openai import OpenAI
 
 from api.core.config import config
-from openai import OpenAI
+from api.routes.endpoints import api_router
+from api.routes.middleware import RequestIDMiddleware
 
 
 logging.basicConfig(
@@ -55,6 +58,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Simple API", version="0.1.0", lifespan=lifespan)
 
+# add middleware
+
+app.add_middleware(RequestIDMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.post('/chat')
 def chat(request: Request, payload: ChatRequest) -> ChatResponse:
@@ -65,3 +79,6 @@ def chat(request: Request, payload: ChatRequest) -> ChatResponse:
     except Exception as e:
         logger.error(e)
         return ChatResponse(message=str(e))
+
+
+app.include_router(api_router, prefix='/rag', tags=['rag'])
